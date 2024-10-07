@@ -6,6 +6,7 @@ contract Twitter {
     uint16 public max_char_in_tweet = 100;
 
     struct Tweet{
+        uint256 id;
         address author;
         string content;
         uint timestamp;
@@ -28,11 +29,12 @@ contract Twitter {
         max_char_in_tweet = newLength;
     }
 
-    function tweet(string memory _tweet) external {
+    function createTweet(string memory _tweet) external {
 
         require(bytes(_tweet).length <= max_char_in_tweet, "too long!");
 
         Tweet memory newTweet = Tweet({
+            id: tweets[msg.sender].length,
             author: msg.sender,
             content: _tweet,
             timestamp: block.timestamp,
@@ -40,6 +42,16 @@ contract Twitter {
         });
 
         tweets[msg.sender].push(newTweet); 
+    }
+
+    function likeTweet(address author, uint256 id) external {
+        require(tweets[author][id].id == id,"tweet doesn't exist");
+        tweets[author][id].likes++;
+    }
+
+    function dislikeTweet(address author, uint256 id) external {
+        require(tweets[author][id].id == id,"tweet doesn't exist");
+        tweets[author][id].likes--;
     }
 
     function getTweet(address _owner, uint _i) external view returns (Tweet memory) {
